@@ -1,0 +1,44 @@
+{
+	"name": "@cardano-dashboard/app",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"dependencies": {
+		"@chakra-ui/icons": "^2.0.11",
+		"@chakra-ui/pro-theme": "^0.0.55",
+		"@chakra-ui/react": "^2.3.7",
+		"@emotion/react": "^11.10.5",
+		"@emotion/styled": "^11.10.5",
+		"@fontsource/inter": "^4.5.14",
+		"@fontsource/libre-franklin": "^4.5.10",
+		"@tanstack/react-query": "^4.16.1",
+		"@tanstack/react-query-devtools": "^4.16.1",
+		"axios": "^1.6.0",
+		"big-integer": "^1.6.51",
+		"browser-or-node": "^2.1.1",
+		"framer-motion": "^7.6.6",
+		"hex-string": "^1.0.3",
+		"json-bigint": "^1.0.0",
+		"next": "^14.0.0",
+		"node-cron": "^3.0.3",
+		"react": "^18.0.0",
+		"react-countup": "^6.3.2",
+		"react-dom": "18.2.0",
+		"react-icons": "^4.6.0",
+		"react-intersection-observer": "^9.4.0",
+		"twitter-api-v2": "^1.15.0"
+	},
+	"devDependencies": {
+		"@types/node": "18.8.3",
+		"@types/react": "18.0.21",
+		"@types/react-dom": "18.0.6",
+		"eslint": "8.25.0",
+		"eslint-config-next": "12.3.1",
+		"typescript": "5.8.3"
+	}
+}
