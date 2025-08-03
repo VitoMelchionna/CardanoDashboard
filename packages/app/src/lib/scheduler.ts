@@ -1,10 +1,8 @@
-import cron from "node-cron";
 import TwitterAPI from "./twitterApi";
 import { fetchCardanoMetrics } from "./cardanoMetrics";
 import { createTweetContent } from "./metricsFormatter";
 import { invalidateCache } from "./metricsCache";
 
-let scheduledJob = null;
 let isInitialized = false;
 
 export function initializeScheduler() {
@@ -13,54 +11,9 @@ export function initializeScheduler() {
 		return;
 	}
 
-	if (scheduledJob) {
-		scheduledJob.destroy();
-	}
-
-	// Schedule for 16:30 CET (15:30 UTC in winter, 14:30 UTC in summer)
-	// Using 15:30 UTC as default
-	scheduledJob = cron.schedule(
-		"30 15 * * *",
-		async () => {
-			console.log("Running daily Cardano metrics tweet...");
-
-			try {
-				if (
-					!process.env.X_API_KEY ||
-					!process.env.BLOCKFROST_PROJECT_ID
-				) {
-					console.error("Missing required environment variables");
-					return;
-				}
-
-				// Invalidate cache before fetching fresh data for the daily tweet
-				console.log("Invalidating cache for fresh daily metrics...");
-				invalidateCache();
-
-				const twitterApi = new TwitterAPI({
-					apiKey: process.env.X_API_KEY,
-					apiSecret: process.env.X_API_SECRET,
-					accessToken: process.env.X_ACCESS_TOKEN,
-					accessTokenSecret: process.env.X_ACCESS_TOKEN_SECRET,
-				});
-
-				const metrics = await fetchCardanoMetrics(true);
-				const tweetContent = createTweetContent(metrics);
-
-				await twitterApi.postTweet(tweetContent);
-				console.log("Daily tweet posted successfully!");
-			} catch (error) {
-				console.error("Error posting daily tweet:", error);
-			}
-		},
-		{
-			timezone: "Europe/Berlin", // CET timezone
-		}
-	);
-
 	isInitialized = true;
 	console.log(
-		"Cardano Bot Scheduler initialized - Daily tweets at 16:30 CET"
+		"Cardano Bot Scheduler initialized - Daily tweets handled by Vercel Cron Jobs"
 	);
 
 	// Pre-populate cache on startup if empty
@@ -78,8 +31,9 @@ async function initializeCache() {
 
 export function getSchedulerStatus() {
 	return {
-		isRunning: isInitialized && scheduledJob !== null,
+		isRunning: isInitialized,
 		nextRun: getNextRunTime(),
+		platform: "vercel-cron"
 	};
 }
 
@@ -96,7 +50,40 @@ export function getNextRunTime() {
 	return today.toISOString();
 }
 
-// Auto-start scheduler when module is imported
+// Manual trigger function for testing
+export async function triggerDailyTweet() {
+	console.log("Manually triggering daily Cardano metrics tweet...");
+
+	try {
+		if (!process.env.X_API_KEY || !process.env.BLOCKFROST_PROJECT_ID) {
+			console.error("Missing required environment variables");
+			throw new Error("Missing required environment variables");
+		}
+
+		// Invalidate cache before fetching fresh data for the daily tweet
+		console.log("Invalidating cache for fresh daily metrics...");
+		invalidateCache();
+
+		const twitterApi = new TwitterAPI({
+			apiKey: process.env.X_API_KEY,
+			apiSecret: process.env.X_API_SECRET,
+			accessToken: process.env.X_ACCESS_TOKEN,
+			accessTokenSecret: process.env.X_ACCESS_TOKEN_SECRET,
+		});
+
+		const metrics = await fetchCardanoMetrics(true);
+		const tweetContent = createTweetContent(metrics);
+
+		await twitterApi.postTweet(tweetContent);
+		console.log("Daily tweet posted successfully!");
+		return { success: true, message: "Daily tweet posted successfully" };
+	} catch (error) {
+		console.error("Error posting daily tweet:", error);
+		throw error;
+	}
+}
+
+// Auto-start scheduler when module is imported (only for cache initialization)
 if (typeof window === "undefined") {
 	// Only run on server side
 	initializeScheduler();

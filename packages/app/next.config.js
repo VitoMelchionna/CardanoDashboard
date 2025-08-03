@@ -16,7 +16,6 @@ const nextConfig = {
 	 */
 	experimental: {
 		externalDir: true,
-		serverComponentsExternalPackages: ["node-cron"],
 	},
 	env: {
 		X_API_KEY: process.env.X_API_KEY,

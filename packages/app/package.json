@@ -26,7 +26,6 @@
 		"hex-string": "^1.0.3",
 		"json-bigint": "^1.0.0",
 		"next": "^14.0.0",
-		"node-cron": "^3.0.3",
 		"react": "^18.0.0",
 		"react-countup": "^6.3.2",
 		"react-dom": "18.2.0",
