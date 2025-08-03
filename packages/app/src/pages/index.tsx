@@ -128,7 +128,6 @@ export default function Home() {
 						cursor: "pointer",
 					}}
 				>
-					<span style={{ fontSize: "1.2rem" }}>🐦</span>
 					Follow @CardanoDash on X
 				</a>
 			</div>
@@ -468,7 +467,7 @@ export default function Home() {
 							color: "#333",
 						}}
 					>
-						🐦 Next Tweet Preview
+						Next Tweet Preview
 					</h2>
 					<div
 						style={{
