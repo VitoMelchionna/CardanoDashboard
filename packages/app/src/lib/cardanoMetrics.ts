@@ -1,4 +1,5 @@
 import CardanoAPI from "./cardanoApi.ts";
+import { getCachedMetrics } from "./metricsCache.ts";
 import {
 	formatADA,
 	formatNumber,
@@ -7,15 +8,18 @@ import {
 
 const CARDANO_GENESIS_DATE = "2017-09-23"; // Cardano mainnet launch
 
-export async function fetchCardanoMetrics() {
+export async function fetchCardanoMetrics(forceRefresh = false) {
 	const cardanoApi = new CardanoAPI(process.env.BLOCKFROST_PROJECT_ID);
 
+	if (!forceRefresh) {
+		return getCachedMetrics().metrics;
+	}
+
 	try {
-		const [networkInfo, genesis, latestBlock, epochsLatest, adaPrice] =
+		const [networkInfo, cardanoActivityMetrics, epochsLatest, adaPrice] =
 			await Promise.all([
 				cardanoApi.getNetworkInfo(),
-				cardanoApi.getGenesis(),
-				cardanoApi.getLatestBlock(),
+				cardanoApi.getCardanoActivityMetrics(),
 				cardanoApi.getEpochsLatest(),
 				cardanoApi.getADAPrice(),
 			]);
@@ -29,14 +33,13 @@ export async function fetchCardanoMetrics() {
 		// Extract metrics from Blockfrost API responses
 		const metrics = {
 			uptime,
-			//totalWallets: networkInfo?.stake?.active || 1300000, // Active stake addresses
 			tvl: networkInfo?.supply.circulating || 0, // Circulating supply as TVL proxy
 			stakedAda: networkInfo?.stake.active || 0,
 			totalSupply: networkInfo?.supply.total || 45000000000000000, // Total supply
 			treasuryAda: networkInfo?.supply.treasury || 0,
 			activeStakePools,
-			//transactions24h: latestBlock?.tx_count || 0, IMPLEMENT
-			//activeWallets24h: latestBlock?.height || 0, IMPLEMENT
+			transactions24h: cardanoActivityMetrics?.transactionCount || 0,
+			activeWallets24h: cardanoActivityMetrics?.activeWalletCount || 0,
 			epoch: epochsLatest?.epoch || 0,
 			adaPrice: adaPrice.price,
 		};
@@ -55,7 +58,6 @@ export async function fetchCardanoMetrics() {
 			treasuryAda: 1500000000000000, // 1.5B ADA in lovelaces
 			activeStakePools: 3000,
 			transactions24h: 95000,
-			blockHeight: 10500000,
 			epoch: 490,
 		};
 	}

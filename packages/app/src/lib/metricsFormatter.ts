@@ -34,18 +34,17 @@ export function calculateUptime(startDate) {
 export function createTweetContent(metrics) {
 	const {
 		uptime,
-		totalWallets,
 		tvl,
 		stakedAda,
 		totalSupply,
 		treasuryAda,
 		activeStakePools,
 		transactions24h,
-		blockHeight,
+		activeWallets24h,
 		adaPrice,
 	} = metrics;
 
-	return `🚀 Daily Cardano Metrics Update
+	return `Daily Cardano Metrics Update
 
 ⏰ Uptime: ${formatNumber(uptime)} days uninterrupted
 💰 TVL: ₳${formatADA(tvl)} ($${formatNumber((tvl / 1000000) * adaPrice)})
@@ -61,5 +60,5 @@ export function createTweetContent(metrics) {
 	)})
 🖥️ Active Pools: ${formatNumber(activeStakePools)}
 📊 24h Transactions: ${formatNumber(transactions24h)}
-🧱 Block Height: ${formatNumber(blockHeight)}`;
+👛 24h Active Wallets: ${formatNumber(activeWallets24h)}`;
 }
