@@ -12,7 +12,11 @@ export async function fetchCardanoMetrics(forceRefresh = false) {
 	const cardanoApi = new CardanoAPI(process.env.BLOCKFROST_PROJECT_ID);
 
 	if (!forceRefresh) {
-		return getCachedMetrics().metrics;
+		const cachedMetrics = getCachedMetrics();
+		if (cachedMetrics) {
+			return cachedMetrics.metrics;
+		}
+		return null;
 	}
 
 	try {
