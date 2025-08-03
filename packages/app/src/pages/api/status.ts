@@ -11,11 +11,16 @@ export default async function handler(req, res) {
 	try {
 		// Always use cached metrics for the dashboard to avoid API calls
 		const metrics = await fetchCardanoMetrics(false); // Never force refresh from dashboard
+
+		if (!metrics) {
+			return res.status(200).json({});
+		}
+
 		const tweetContent = createTweetContent(metrics);
 		const schedulerStatus = getSchedulerStatus();
 		const cacheInfo = getCacheInfo();
 
-		res.status(200).json({
+		return res.status(200).json({
 			metrics,
 			tweetPreview: tweetContent,
 			scheduler: schedulerStatus,
