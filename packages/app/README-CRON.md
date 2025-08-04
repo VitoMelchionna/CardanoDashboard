@@ -5,52 +5,60 @@ This project uses Vercel Cron Jobs to automatically post daily Cardano metrics t
 ## Configuration
 
 ### 1. Vercel Configuration (`vercel.json`)
+
 ```json
 {
-  "crons": [
-    {
-      "path": "/api/cron/daily-tweet",
-      "schedule": "30 15 * * *"
-    }
-  ]
+	"crons": [
+		{
+			"path": "/api/cron/daily-tweet",
+			"schedule": "30 15 * * *"
+		}
+	]
 }
 ```
 
-- **Schedule**: `30 15 * * *` runs at 15:30 UTC (16:30 CET)
-- **Path**: `/api/cron/daily-tweet` - the API endpoint that will be called
+-   **Schedule**: `30 15 * * *` runs at 15:30 UTC (16:30 CET)
+-   **Path**: `/api/cron/daily-tweet` - the API endpoint that will be called
 
 ### 2. API Endpoints
 
 #### `/api/cron/daily-tweet`
-- **Method**: POST only
-- **Purpose**: Main cron job endpoint triggered by Vercel
-- **Function**: Fetches fresh Cardano metrics and posts to Twitter
+
+-   **Method**: GET (Vercel cron) / POST (manual testing)
+-   **Purpose**: Main cron job endpoint triggered by Vercel
+-   **Function**: Fetches fresh Cardano metrics and posts to Twitter
 
 #### `/api/test/daily-tweet`
-- **Method**: POST only
-- **Purpose**: Manual testing endpoint
-- **Function**: Allows manual triggering of the daily tweet for testing
+
+-   **Method**: GET / POST
+-   **Purpose**: Manual testing endpoint
+-   **Function**: Allows manual triggering of the daily tweet for testing
 
 ## Environment Variables Required
 
 Make sure these environment variables are set in your Vercel project:
 
-- `X_API_KEY` - Twitter API Key
-- `X_API_SECRET` - Twitter API Secret
-- `X_ACCESS_TOKEN` - Twitter Access Token
-- `X_ACCESS_TOKEN_SECRET` - Twitter Access Token Secret
-- `BLOCKFROST_PROJECT_ID` - Blockfrost Project ID
+-   `X_API_KEY` - Twitter API Key
+-   `X_API_SECRET` - Twitter API Secret
+-   `X_ACCESS_TOKEN` - Twitter Access Token
+-   `X_ACCESS_TOKEN_SECRET` - Twitter Access Token Secret
+-   `BLOCKFROST_PROJECT_ID` - Blockfrost Project ID
 
 ## Testing
 
 ### Manual Test
-You can manually trigger the daily tweet by making a POST request to:
+
+You can manually trigger the daily tweet by making a GET or POST request to:
+
 ```
+GET /api/test/daily-tweet
 POST /api/test/daily-tweet
 ```
 
 ### Check Status
+
 The scheduler status is available through the existing status endpoint:
+
 ```
 GET /api/status
 ```
@@ -76,7 +84,7 @@ After deploying to Vercel:
 
 ## Troubleshooting
 
-- Check Vercel function logs for execution details
-- Verify environment variables are set correctly
-- Use the test endpoint to verify functionality
-- Monitor the status endpoint for system health 
+-   Check Vercel function logs for execution details
+-   Verify environment variables are set correctly
+-   Use the test endpoint to verify functionality
+-   Monitor the status endpoint for system health
