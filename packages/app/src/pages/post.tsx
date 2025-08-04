@@ -147,7 +147,7 @@ export default function PostPage() {
 						</HStack>
 
 						<Text fontSize="sm" color="gray.500">
-							The daily tweet is automatically scheduled for 16:30
+							The daily tweet is automatically scheduled for 15:30
 							CET via Vercel Cron Jobs.
 						</Text>
 					</VStack>
@@ -222,8 +222,8 @@ export default function PostPage() {
 								Automatic Schedule:
 							</Text>
 							<Text fontSize="sm">
-								Daily tweets are automatically posted at 16:30
-								CET (15:30 UTC) via Vercel Cron Jobs.
+								Daily tweets are automatically posted at 15:30
+								CET (14:30 UTC) via Vercel Cron Jobs.
 							</Text>
 						</Box>
 

@@ -17,7 +17,7 @@ This project uses Vercel Cron Jobs to automatically post daily Cardano metrics t
 }
 ```
 
--   **Schedule**: `30 15 * * *` runs at 15:30 UTC (16:30 CET)
+-   **Schedule**: `30 14 * * *` runs at 14:30 UTC (15:30 CET)
 
 ## Deployment
 

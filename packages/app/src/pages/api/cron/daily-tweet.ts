@@ -15,6 +15,9 @@ export default async function handler(
 
 	console.log("Running daily Cardano metrics tweet...");
 
+	// Set a longer timeout for this endpoint
+	res.setTimeout(300000); // 5 minutes timeout
+
 	try {
 		// Verify required environment variables
 		if (!process.env.X_API_KEY || !process.env.BLOCKFROST_PROJECT_ID) {

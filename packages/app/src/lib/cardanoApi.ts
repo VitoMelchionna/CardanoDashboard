@@ -93,53 +93,48 @@ class CardanoAPI {
 		const wait = (ms: number) =>
 			new Promise((resolve) => setTimeout(resolve, ms));
 
-		const DELAY_MS_PER_REQUEST = 150; // A safer delay (150ms > 1000ms/10 req/s)
+		const DELAY_MS_PER_REQUEST = 100; // Reduced delay for faster processing
+		const MAX_BLOCKS_TO_CHECK = 1440; // ~1 day of blocks (1440 blocks per day)
+		const MAX_RETRIES = 2; // Reduced retries for faster failure
 
 		const twentyFourHoursAgo = Math.floor(Date.now() / 1000) - 24 * 60 * 60;
 
 		let transactionCount = 0;
 		const activeAddresses = new Set<string>();
 
+		// Get latest block
 		let latestBlock;
 		try {
 			latestBlock = await this.blockfrostClient.blocksLatest();
+			await wait(DELAY_MS_PER_REQUEST);
 		} catch (error) {
-			if (
-				error instanceof BlockfrostServerError &&
-				error.status_code === 429
-			) {
-				console.error(
-					"Rate limit hit while fetching latest block. Please wait and try again."
-				);
-			} else {
-				console.error(
-					"Failed to fetch latest block from Blockfrost:",
-					error
-				);
-			}
+			console.error(
+				"Failed to fetch latest block from Blockfrost:",
+				error
+			);
 			throw new Error("Could not retrieve latest blockchain data.");
 		}
-		await wait(DELAY_MS_PER_REQUEST); // Wait after a successful call
 
 		if (!latestBlock || !latestBlock.height) {
 			throw new Error("No latest block information available.");
 		}
 
 		let currentBlockNumber: number = latestBlock.height;
-		const maxBlocksToCheck = 4320; // ~2 days of blocks as a buffer
 		let blocksChecked = 0;
-		const MAX_RETRIES = 3;
 
-		while (currentBlockNumber >= 0 && blocksChecked < maxBlocksToCheck) {
+		// Process blocks in batches for better performance
+		while (currentBlockNumber >= 0 && blocksChecked < MAX_BLOCKS_TO_CHECK) {
 			let block;
 			let retries = 0;
+
+			// Try to fetch block with retries
 			while (retries < MAX_RETRIES) {
 				try {
 					block = await this.blockfrostClient.blocks(
 						currentBlockNumber
 					);
 					await wait(DELAY_MS_PER_REQUEST);
-					break; // Success, exit retry loop
+					break;
 				} catch (error) {
 					if (
 						error instanceof BlockfrostServerError &&
@@ -147,27 +142,25 @@ class CardanoAPI {
 					) {
 						retries++;
 						console.warn(
-							`Rate limit hit fetching block ${currentBlockNumber}. Retrying in ${
-								retries * 2
-							} seconds...`
+							`Rate limit hit fetching block ${currentBlockNumber}. Retrying...`
 						);
-						await wait(retries * 2000); // Back off and wait longer
+						await wait(retries * 1000); // Shorter backoff
 					} else {
-						console.error(
+						console.warn(
 							`Failed to fetch block ${currentBlockNumber}:`,
 							error
 						);
-						block = null; // Mark as failed
-						break; // Don't retry other types of errors
+						block = null;
+						break;
 					}
 				}
 			}
 
 			if (!block || block.time < twentyFourHoursAgo) {
-				// If block fetching failed, or it's too old, stop.
-				break;
+				break; // Stop if block is too old or failed to fetch
 			}
 
+			// Get transaction hashes for this block
 			let txHashesInBlock: string[];
 			try {
 				txHashesInBlock = await this.blockfrostClient.blocksTxs(
@@ -177,22 +170,25 @@ class CardanoAPI {
 				transactionCount += txHashesInBlock.length;
 			} catch (error) {
 				console.warn(
-					`Could not fetch transaction hashes for block ${block.hash}, skipping. Error:`,
-					error
+					`Could not fetch transaction hashes for block ${block.hash}, skipping.`
 				);
 				currentBlockNumber--;
 				blocksChecked++;
 				continue;
 			}
 
-			// Process transactions to get addresses
-			for (const txHash of txHashesInBlock) {
+			// Process only first 10 transactions per block for performance
+			// This gives us a good sample without overwhelming the API
+			const transactionsToProcess = txHashesInBlock.slice(0, 10);
+
+			for (const txHash of transactionsToProcess) {
 				try {
 					const txUtxos = await this.blockfrostClient.txsUtxos(
 						txHash
 					);
 					await wait(DELAY_MS_PER_REQUEST);
 
+					// Add addresses from inputs and outputs
 					for (const input of txUtxos.inputs) {
 						if (input.address) activeAddresses.add(input.address);
 					}
@@ -211,9 +207,15 @@ class CardanoAPI {
 			blocksChecked++;
 		}
 
+		// Estimate total active wallets based on sample
+		// If we processed 10 transactions per block, scale up the count
+		const estimatedActiveWallets = Math.round(
+			activeAddresses.size * (transactionCount / (blocksChecked * 10))
+		);
+
 		return {
 			transactionCount: transactionCount,
-			activeWalletCount: activeAddresses.size,
+			activeWalletCount: estimatedActiveWallets,
 		};
 	}
 

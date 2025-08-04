@@ -1,8 +1,16 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/daily-tweet",
-      "schedule": "30 15 * * *"
-    }
-  ]
-} 
+	"crons": [
+		{
+			"path": "/api/cron/daily-tweet",
+			"schedule": "30 14 * * *"
+		}
+	],
+	"functions": {
+		"src/pages/api/cron/daily-tweet.ts": {
+			"maxDuration": 300
+		},
+		"src/pages/api/test/daily-tweet.ts": {
+			"maxDuration": 300
+		}
+	}
+}

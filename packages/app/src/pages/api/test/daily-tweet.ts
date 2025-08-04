@@ -10,6 +10,9 @@ export default async function handler(
 		return res.status(405).json({ error: "Method not allowed" });
 	}
 
+	// Set a longer timeout for this endpoint
+	res.setTimeout(300000); // 5 minutes timeout
+
 	try {
 		const result = await triggerDailyTweet();
 		return res.status(200).json(result);
