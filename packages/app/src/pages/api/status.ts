@@ -1,7 +1,5 @@
 import { fetchCardanoMetrics } from "../../lib/cardanoMetrics";
 import { createTweetContent } from "../../lib/metricsFormatter";
-import { getSchedulerStatus } from "../../lib/scheduler";
-import { getCacheInfo } from "../../lib/metricsCache";
 
 export default async function handler(req, res) {
 	if (req.method !== "GET") {
@@ -10,31 +8,18 @@ export default async function handler(req, res) {
 
 	try {
 		// Always use cached metrics for the dashboard to avoid API calls
-		const metrics = await fetchCardanoMetrics(false); // Never force refresh from dashboard
+		const metrics = await fetchCardanoMetrics(); // Never force refresh from dashboard
 
 		if (!metrics) {
 			return res.status(200).json({});
 		}
 
 		const tweetContent = createTweetContent(metrics);
-		const schedulerStatus = getSchedulerStatus();
-		const cacheInfo = getCacheInfo();
 
 		return res.status(200).json({
 			metrics,
 			tweetPreview: tweetContent,
-			scheduler: schedulerStatus,
-			cache: {
-				isFromCache: true,
-				cachedAt: cacheInfo.cachedAt
-					? new Date(cacheInfo.cachedAt).toISOString()
-					: null,
-				expiresAt: cacheInfo.expiresAt
-					? new Date(cacheInfo.expiresAt).toISOString()
-					: null,
-				isExpired: cacheInfo.isExpired,
-				hasCache: cacheInfo.hasCache,
-			},
+			scheduler: undefined,
 			timestamp: new Date().toISOString(),
 		});
 	} catch (error) {

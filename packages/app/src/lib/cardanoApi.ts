@@ -87,6 +87,7 @@ class CardanoAPI {
 	}
 
 	async getCardanoActivityMetrics(): Promise<{
+		currentEpoch: number;
 		transactionCount: number;
 		activeWalletCount: number;
 	}> {
@@ -94,7 +95,7 @@ class CardanoAPI {
 			new Promise((resolve) => setTimeout(resolve, ms));
 
 		const DELAY_MS_PER_REQUEST = 100; // Reduced delay for faster processing
-		const MAX_BLOCKS_TO_CHECK = 1440; // ~1 day of blocks (1440 blocks per day)
+		const MAX_BLOCKS_TO_CHECK = 4320; // ~1 day of blocks
 		const MAX_RETRIES = 2; // Reduced retries for faster failure
 
 		const twentyFourHoursAgo = Math.floor(Date.now() / 1000) - 24 * 60 * 60;
@@ -177,11 +178,7 @@ class CardanoAPI {
 				continue;
 			}
 
-			// Process only first 10 transactions per block for performance
-			// This gives us a good sample without overwhelming the API
-			const transactionsToProcess = txHashesInBlock.slice(0, 10);
-
-			for (const txHash of transactionsToProcess) {
+			for (const txHash of txHashesInBlock) {
 				try {
 					const txUtxos = await this.blockfrostClient.txsUtxos(
 						txHash
@@ -207,15 +204,10 @@ class CardanoAPI {
 			blocksChecked++;
 		}
 
-		// Estimate total active wallets based on sample
-		// If we processed 10 transactions per block, scale up the count
-		const estimatedActiveWallets = Math.round(
-			activeAddresses.size * (transactionCount / (blocksChecked * 10))
-		);
-
 		return {
+			currentEpoch: latestBlock.epoch,
 			transactionCount: transactionCount,
-			activeWalletCount: estimatedActiveWallets,
+			activeWalletCount: activeAddresses.size,
 		};
 	}
 

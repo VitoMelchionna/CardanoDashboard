@@ -1,23 +1,10 @@
 import CardanoAPI from "./cardanoApi.ts";
-import { getCachedMetrics } from "./metricsCache.ts";
-import {
-	formatADA,
-	formatNumber,
-	calculateUptime,
-} from "./metricsFormatter.ts";
+import { calculateUptime } from "./metricsFormatter.ts";
 
 const CARDANO_GENESIS_DATE = "2017-09-23"; // Cardano mainnet launch
 
-export async function fetchCardanoMetrics(forceRefresh = false) {
+export async function fetchCardanoMetrics() {
 	const cardanoApi = new CardanoAPI(process.env.BLOCKFROST_PROJECT_ID);
-
-	if (!forceRefresh) {
-		const cachedMetrics = getCachedMetrics();
-		if (cachedMetrics) {
-			return cachedMetrics.metrics;
-		}
-		return null;
-	}
 
 	try {
 		const [networkInfo, cardanoActivityMetrics, epochsLatest, adaPrice] =

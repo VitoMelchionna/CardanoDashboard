@@ -13,7 +13,7 @@ export default async function handler(
 		return res.status(405).json({ error: "Method not allowed" });
 	}
 
-	console.log("Running daily Cardano metrics tweet...");
+	/*console.log("Running daily Cardano metrics tweet...");
 
 	// Set a longer timeout for this endpoint
 	res.setTimeout(300000); // 5 minutes timeout
@@ -38,7 +38,7 @@ export default async function handler(
 			accessTokenSecret: process.env.X_ACCESS_TOKEN_SECRET,
 		});
 
-		const metrics = await fetchCardanoMetrics(true);
+		const metrics = await fetchCardanoMetrics();
 		const tweetContent = createTweetContent(metrics);
 
 		await twitterApi.postTweet(tweetContent);
@@ -55,5 +55,5 @@ export default async function handler(
 			error: "Failed to post daily tweet",
 			details: error instanceof Error ? error.message : "Unknown error",
 		});
-	}
+	}*/
 }

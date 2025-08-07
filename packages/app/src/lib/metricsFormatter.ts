@@ -42,11 +42,12 @@ export function createTweetContent(metrics) {
 		transactions24h,
 		activeWallets24h,
 		adaPrice,
+		epoch,
 	} = metrics;
 
-	return `Daily Cardano Metrics Update
+	return `Daily Cardano Metrics:
 
-⏰ Uptime: ${formatNumber(uptime)} days uninterrupted
+⏰ Uptime: ${uptime.toLocaleString("en-US")} days (100%)
 💰 TVL: ₳${formatADA(tvl)} ($${formatNumber((tvl / 1000000) * adaPrice)})
 🔒 Staked $ADA: ₳${formatADA(stakedAda)} (${(
 		(stakedAda / totalSupply) *
@@ -58,7 +59,8 @@ export function createTweetContent(metrics) {
 🏛️ Treasury: ₳${formatADA(treasuryAda)} ($${formatNumber(
 		(treasuryAda / 1000000) * adaPrice
 	)})
-🖥️ Active Pools: ${formatNumber(activeStakePools)}
-📊 24h Transactions: ${formatNumber(transactions24h)}
-👛 24h Active Wallets: ${formatNumber(activeWallets24h)}`;
+🖥️ Active Stake Pools: ${formatNumber(activeStakePools)}
+📊 Transactions: ${formatNumber(transactions24h)}
+👛 Active Wallets: ${formatNumber(activeWallets24h)}
+⏳ Epoch: ${epoch}`;
 }
