@@ -22,6 +22,7 @@
 		"axios": "^1.6.0",
 		"big-integer": "^1.6.51",
 		"browser-or-node": "^2.1.1",
+		"dotenv": "^17.2.1",
 		"framer-motion": "^7.6.6",
 		"hex-string": "^1.0.3",
 		"json-bigint": "^1.0.0",

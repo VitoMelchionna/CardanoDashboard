@@ -2,6 +2,8 @@ import TwitterAPI from "./twitterApi";
 import { fetchCardanoMetrics } from "./cardanoMetrics";
 import { createTweetContent } from "./metricsFormatter";
 import cron from "node-cron";
+import dotenv from "dotenv";
+dotenv.config({ path: require("path").resolve(__dirname, "../../.env") });
 
 // Manual trigger function for testing
 export async function triggerDailyTweet() {
@@ -33,7 +35,7 @@ export async function triggerDailyTweet() {
 }
 
 cron.schedule(
-	"30 15 * * *",
+	"0 15 * * *",
 	() => {
 		triggerDailyTweet();
 	},
