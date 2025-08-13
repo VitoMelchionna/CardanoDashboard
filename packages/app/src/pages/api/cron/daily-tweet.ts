@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import TwitterAPI from "../../../lib/twitterApi";
 import { fetchCardanoMetrics } from "../../../lib/cardanoMetrics";
 import { createTweetContent } from "../../../lib/metricsFormatter";
-import { invalidateCache } from "../../../lib/metricsCache";
 
 export default async function handler(
 	req: NextApiRequest,

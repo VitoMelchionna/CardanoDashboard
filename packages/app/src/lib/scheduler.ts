@@ -10,7 +10,13 @@ export async function triggerDailyTweet() {
 	console.log("Triggering daily Cardano metrics tweet...");
 
 	try {
-		if (!process.env.X_API_KEY || !process.env.BLOCKFROST_PROJECT_ID) {
+		if (
+			!process.env.X_API_KEY ||
+			!process.env.X_API_SECRET ||
+			!process.env.X_ACCESS_TOKEN ||
+			!process.env.X_ACCESS_TOKEN_SECRET ||
+			!process.env.BLOCKFROST_PROJECT_ID
+		) {
 			console.error("Missing required environment variables");
 			throw new Error("Missing required environment variables");
 		}
@@ -24,7 +30,7 @@ export async function triggerDailyTweet() {
 
 		const metrics = await fetchCardanoMetrics();
 		const tweetContent = createTweetContent(metrics);
-
+		console.log(tweetContent);
 		await twitterApi.postTweet(tweetContent);
 		console.log("Daily tweet posted successfully!");
 		return { success: true, message: "Daily tweet posted successfully" };
@@ -45,13 +51,20 @@ cron.schedule(
 );
 
 console.log(
-	"Scheduler started. Daily tweet will be triggered at 15:30 CET (Europe/Paris timezone)."
+	"Scheduler started. Daily tweet will be triggered at 15:00 CET (Europe/Paris timezone)."
 );
 
 // Allow manual run for testing
 if (require.main === module) {
 	const arg = process.argv[2];
 	if (arg === "test") {
+		/*const cardanoApi = new CardanoAPI(
+			process.env.BLOCKFROST_PROJECT_ID,
+			process.env.MAESTRO_API_KEY
+		);
+		(async () => {
+			console.log(await cardanoApi.getActivePools());
+		})();*/
 		triggerDailyTweet();
 	}
 }

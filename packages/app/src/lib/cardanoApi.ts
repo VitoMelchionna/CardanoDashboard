@@ -5,22 +5,38 @@ import {
 } from "@blockfrost/blockfrost-js";
 
 const BLOCKFROST_BASE_URL = "https://cardano-mainnet.blockfrost.io/api/v0";
+const MAESTRO_BASE_URL = "https://mainnet.gomaestro-api.org/v1";
+const CARDANOSCAN_BASE_URL = "https://api.cardanoscan.io/api/v1";
 
 class CardanoAPI {
-	projectId;
-	axiosClient;
 	blockfrostClient;
+	axiosBlockfrostClient;
+	axiosMaestroClient;
+	axiosCardanoScanClient;
 
-	constructor(projectId) {
-		this.projectId = projectId;
+	constructor(projectId, maestroApiKey, cardanoScanApiKey) {
 		this.blockfrostClient = new BlockFrostAPI({
 			projectId: projectId,
 			requestTimeout: 10000,
 		});
-		this.axiosClient = axios.create({
+		this.axiosBlockfrostClient = axios.create({
 			baseURL: BLOCKFROST_BASE_URL,
 			headers: {
 				project_id: projectId,
+				"Content-Type": "application/json",
+			},
+		});
+		this.axiosMaestroClient = axios.create({
+			baseURL: MAESTRO_BASE_URL,
+			headers: {
+				"api-key": maestroApiKey,
+				"Content-Type": "application/json",
+			},
+		});
+		this.axiosCardanoScanClient = axios.create({
+			baseURL: CARDANOSCAN_BASE_URL,
+			headers: {
+				apiKey: cardanoScanApiKey,
 				"Content-Type": "application/json",
 			},
 		});
@@ -28,7 +44,7 @@ class CardanoAPI {
 
 	async getNetworkInfo() {
 		try {
-			const response = await this.axiosClient.get("/network");
+			const response = await this.axiosBlockfrostClient.get("/network");
 			return response.data;
 		} catch (error) {
 			console.error("Error fetching network info:", error);
@@ -36,52 +52,35 @@ class CardanoAPI {
 		}
 	}
 
-	async getGenesis() {
+	async getCurrentEpoch() {
 		try {
-			const response = await this.axiosClient.get("/genesis");
+			const response = await this.axiosMaestroClient.get(
+				"/epochs/current"
+			);
 			return response.data;
 		} catch (error) {
-			console.error("Error fetching genesis:", error);
-			throw error;
-		}
-	}
-
-	async getAccountsStats() {
-		try {
-			const response = await this.axiosClient.get("/accounts");
-			return response.data;
-		} catch (error) {
-			console.error("Error fetching accounts stats:", error);
-			throw error;
-		}
-	}
-
-	async getPoolsStats() {
-		try {
-			const response = await this.axiosClient.get("/pools");
-			return response.data;
-		} catch (error) {
-			console.error("Error fetching pools stats:", error);
-			throw error;
-		}
-	}
-
-	async getEpochsLatest() {
-		try {
-			const response = await this.axiosClient.get("/epochs/latest");
-			return response.data;
-		} catch (error) {
-			console.error("Error fetching latest epoch:", error);
+			console.error("Error fetching current epoch:", error);
 			throw error;
 		}
 	}
 
 	async getActivePools() {
 		try {
-			const response = await this.axiosClient.get("/pools");
-			return response.data;
+			const limit = 1;
+			let pageNo = 1;
+			let totalActivePools = 0;
+
+			const response = await this.axiosCardanoScanClient.get(
+				"/pool/list",
+				{
+					params: { limit, pageNo },
+				}
+			);
+			totalActivePools = response.data?.count;
+
+			return { totalActivePools };
 		} catch (error) {
-			console.error("Error fetching total supply:", error);
+			console.error("Error fetching active pools:", error);
 			throw error;
 		}
 	}
@@ -214,7 +213,7 @@ class CardanoAPI {
 	async getADAPrice() {
 		try {
 			const response = await fetch(
-				"https://api.price2sheet.com/json/ada/usd"
+				"https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd"
 			);
 			return await response.json();
 		} catch (error) {

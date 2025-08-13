@@ -22,6 +22,8 @@ const nextConfig = {
 		X_ACCESS_TOKEN: process.env.X_ACCESS_TOKEN,
 		X_ACCESS_TOKEN_SECRET: process.env.X_ACCESS_TOKEN_SECRET,
 		BLOCKFROST_PROJECT_ID: process.env.BLOCKFROST_PROJECT_ID,
+		MAESTRO_API_KEY: process.env.MAESTRO_API_KEY,
+		CARDANOSCAN_API_KEY: process.env.CARDANOSCAN_API_KEY,
 	},
 	typescript: {
 		// !! WARN !!
