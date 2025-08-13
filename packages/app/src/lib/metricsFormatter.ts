@@ -45,10 +45,13 @@ export function createTweetContent(metrics) {
 		epoch,
 	} = metrics;
 
+	const totalTvlAda = stakedAda + Math.round((tvl / adaPrice) * 1000000);
+	const totalTvlUsd = tvl + (stakedAda / 1000000) * adaPrice;
+
 	return `Daily Cardano Metrics:
 
 ⏰ Uptime: ${uptime.toLocaleString("en-US")} days (100%)
-💰 TVL: ₳${formatADA(tvl)} ($${formatNumber((tvl / 1000000) * adaPrice)})
+💰 TVL: ₳${formatADA(totalTvlAda)} ($${formatNumber(totalTvlUsd)})
 🔒 Staked $ADA: ₳${formatADA(stakedAda)} (${(
 		(stakedAda / totalSupply) *
 		100

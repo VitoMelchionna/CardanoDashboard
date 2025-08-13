@@ -85,6 +85,21 @@ class CardanoAPI {
 		}
 	}
 
+	async getTVL() {
+		try {
+			const response = await fetch("https://api.llama.fi/v2/chains");
+			const data = await response.json();
+			const cardanoEntry = data.find(
+				(entry: any) =>
+					entry.name === "Cardano" && entry.tokenSymbol === "ADA"
+			);
+			return cardanoEntry ? cardanoEntry.tvl : null;
+		} catch (error) {
+			console.error("Error fetching DeFi TVL:", error);
+			throw error;
+		}
+	}
+
 	async getCardanoActivityMetrics(): Promise<{
 		currentEpoch: number;
 		transactionCount: number;

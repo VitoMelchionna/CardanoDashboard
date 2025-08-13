@@ -17,49 +17,48 @@ export async function fetchCardanoMetrics() {
 			currentEpoch,
 			adaPrice,
 			activePools,
+			tvl,
 		] = await Promise.all([
 			cardanoApi.getNetworkInfo(),
 			cardanoApi.getCardanoActivityMetrics(),
 			cardanoApi.getCurrentEpoch(),
 			cardanoApi.getADAPrice(),
 			cardanoApi.getActivePools(),
+			cardanoApi.getTVL(),
 		]);
 
 		// Calculate uptime
 		const uptime = calculateUptime(CARDANO_GENESIS_DATE);
 
-		// Get active pools count (Blockfrost returns paginated results, so we'll use network stake data)
-		const activeStakePools = 2991;
+		if (
+			!networkInfo ||
+			!currentEpoch ||
+			!adaPrice ||
+			!activePools ||
+			!tvl
+		) {
+			throw new Error("Failed to fetch essential Cardano metrics");
+		}
 
 		// Extract metrics from Blockfrost API responses
 		const metrics = {
 			uptime,
-			tvl: networkInfo?.stake.active + 500000000000000 || 0, // staked ADA plus approx 1B as TVL proxy. TODO improve this
+			tvl: tvl || 0, // DeFi TVL in USD
 			stakedAda: networkInfo?.stake.active || 0,
-			totalSupply: networkInfo?.supply.total || 45000000000000000, // Total supply
+			totalSupply: networkInfo?.supply.total || 0, // Total supply
 			treasuryAda: networkInfo?.supply.treasury || 0,
-			activeStakePools: activePools.totalActivePools || activeStakePools,
+			activeStakePools: activePools?.totalActivePools || 0,
 			transactions24h: cardanoActivityMetrics?.transactionCount || 0,
 			activeWallets24h: cardanoActivityMetrics?.activeWalletCount || 0,
 			epoch: currentEpoch?.epoch_no || 0,
-			adaPrice: adaPrice.cardano.usd || 0.87,
+			adaPrice: adaPrice?.cardano.usd || 0.87,
 		};
 
 		return metrics;
 	} catch (error) {
 		console.error("Error fetching Cardano metrics:", error);
 
-		// Return fallback metrics if API fails
-		return {
-			uptime: calculateUptime(CARDANO_GENESIS_DATE),
-			activeWallets24h: 130000,
-			tvl: 35000000000000000, // 35B ADA in lovelaces as circulating supply
-			stakedAda: 22000000000000000, // 24B ADA in lovelaces
-			totalSupply: 38000000000000000, // 45B ADA in lovelaces
-			treasuryAda: 1700000000000000, // 1.5B ADA in lovelaces
-			activeStakePools: 3000,
-			transactions24h: 95000,
-			epoch: 490,
-		};
+		// Return empty object if any error occurs
+		return {};
 	}
 }
