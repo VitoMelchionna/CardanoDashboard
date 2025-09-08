@@ -57,7 +57,7 @@ class CardanoAPI {
 			const response = await this.axiosMaestroClient.get(
 				"/epochs/current"
 			);
-			return response.data;
+			return response.data.data;
 		} catch (error) {
 			console.error("Error fetching current epoch:", error);
 			throw error;
@@ -232,7 +232,7 @@ class CardanoAPI {
 			);
 			return await response.json();
 		} catch (error) {
-			console.error("Error fetching total supply:", error);
+			console.error("Error fetching ada price:", error);
 			throw error;
 		}
 	}

@@ -18,6 +18,7 @@ const nextConfig = {
 		externalDir: true,
 	},
 	env: {
+		DATABASE_URL: process.env.DATABASE_URL,
 		X_API_KEY: process.env.X_API_KEY,
 		X_ACCESS_TOKEN: process.env.X_ACCESS_TOKEN,
 		X_ACCESS_TOKEN_SECRET: process.env.X_ACCESS_TOKEN_SECRET,

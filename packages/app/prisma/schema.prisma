@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model CardanoMetrics {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  uptime             Int
+  tvl                Float
+  stakedAda          Float
+  totalSupply        Float
+  treasuryAda        Float
+  activeStakePools   Int
+  transactions24h    Int
+  activeWallets24h   Int
+  epoch              Int
+  adaPrice           Float
+  createdAt DateTime @default(now())
+}

@@ -45,7 +45,7 @@ export function createTweetContent(metrics) {
 		epoch,
 	} = metrics;
 
-	const totalTvlAda = stakedAda + Math.round((tvl / adaPrice) * 1000000);
+	const totalTvlAda = Math.round(stakedAda + (tvl / adaPrice) * 1000000);
 	const totalTvlUsd = tvl + (stakedAda / 1000000) * adaPrice;
 
 	return `Daily Cardano Metrics:
@@ -66,4 +66,41 @@ export function createTweetContent(metrics) {
 📊 Transactions: ${formatNumber(transactions24h)}
 👛 Active Wallets: ${formatNumber(activeWallets24h)}
 ⏳ Epoch: ${epoch}`;
+}
+
+export function calculatePercentageChange(current, previous) {
+	if (!previous || previous === 0) return 0;
+	return ((current - previous) / previous) * 100;
+}
+
+export function getChangeEmoji(percentage) {
+	if (percentage > 0) return "↗";
+	if (percentage < 0) return "↘";
+	return "";
+}
+
+export function createWeeklyComparisonTweet(changes) {
+	if (!changes) {
+		return "Weekly Cardano Metrics:\n\n❌ Insufficient data for weekly comparison";
+	}
+
+	const formatChange = (change) => {
+		const emoji = getChangeEmoji(change);
+		const sign = change > 0 ? "+" : "";
+		// Don't show decimals for 0% change
+		const formattedChange = change === 0 ? "0" : change.toFixed(1);
+		return `${sign}${formattedChange}% ${emoji}`;
+	};
+
+	return `Weekly Cardano Metrics Changes:
+
+⏰ Uptime: ${formatChange(changes.uptime)}
+💰 TVL: ${formatChange(changes.tvl)}
+🔒 Staked $ADA: ${formatChange(changes.stakedAda)}
+🏛️ Treasury: ${formatChange(changes.treasuryAda)}
+🖥️ Active Stake Pools: ${formatChange(changes.activeStakePools)}
+📊 Transactions: ${formatChange(changes.transactions)}
+👛 Active Wallets: ${formatChange(changes.activeWallets)}
+🪙 $ADA Price: ${formatChange(changes.adaPrice)}
+`;
 }
