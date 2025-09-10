@@ -19,10 +19,13 @@ process.on("SIGTERM", async () => {
 export async function storeCardanoMetrics(metrics: any) {
 	try {
 		console.log("Attempting to save metrics to database...");
+		const totalTvlAda = Math.round(
+			metrics.stakedAda + (metrics.tvl / metrics.adaPrice) * 1000000
+		);
 		const result = await prisma.cardanoMetrics.create({
 			data: {
 				uptime: metrics.uptime,
-				tvl: metrics.tvl,
+				tvl: totalTvlAda,
 				stakedAda: metrics.stakedAda,
 				totalSupply: metrics.totalSupply,
 				treasuryAda: metrics.treasuryAda,
