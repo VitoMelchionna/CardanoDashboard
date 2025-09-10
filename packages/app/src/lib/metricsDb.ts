@@ -20,20 +20,20 @@ export async function storeCardanoMetrics(metrics: any) {
 	try {
 		console.log("Attempting to save metrics to database...");
 		const totalTvlAda = Math.round(
-			metrics.stakedAda + (metrics.tvl / metrics.adaPrice) * 1000000
+			metrics.stakedAda / 1000000 + metrics.tvl / metrics.adaPrice
 		);
 		const result = await prisma.cardanoMetrics.create({
 			data: {
 				uptime: metrics.uptime,
 				tvl: totalTvlAda,
-				stakedAda: metrics.stakedAda,
-				totalSupply: metrics.totalSupply,
-				treasuryAda: metrics.treasuryAda,
+				stakedAda: metrics.stakedAda / 1000000, // Convert to ADA
+				totalSupply: metrics.totalSupply / 1000000, // Convert to ADA
+				treasuryAda: metrics.treasuryAda / 1000000, // Convert to ADA
 				activeStakePools: metrics.activeStakePools,
 				transactions24h: metrics.transactions24h,
 				activeWallets24h: metrics.activeWallets24h,
 				epoch: metrics.epoch,
-				adaPrice: metrics.adaPrice,
+				adaPrice: Math.round(metrics.adaPrice * 1000) / 1000,
 			},
 		});
 		console.log("Successfully saved metrics with ID:", result.id);
