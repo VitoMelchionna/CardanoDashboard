@@ -45,8 +45,8 @@ export function createTweetContent(metrics) {
 		epoch,
 	} = metrics;
 
-	const totalTvlAda = Math.round(stakedAda + (tvl / adaPrice) * 1000000);
-	const totalTvlUsd = tvl + (stakedAda / 1000000) * adaPrice;
+	const totalTvlAda = Math.round((tvl / adaPrice) * 1000000);
+	const totalTvlUsd = tvl;
 
 	return `Daily Cardano Metrics:
 

@@ -61,16 +61,9 @@ export async function fetchCardanoMetrics() {
 	}
 }
 
-export function calculateMinMaxPercentageChange(values) {
-	if (!values || values.length === 0) return 0;
-
-	const min = Math.min(...values);
-	const max = Math.max(...values);
-
-	if (min === 0) return 0;
-
-	// Calculate percentage change from min to max
-	return ((max - min) / min) * 100;
+export function calculateWeeklyPercentageChange(firstValue, lastValue) {
+	if (!firstValue || firstValue === 0) return 0;
+	return ((lastValue - firstValue) / firstValue) * 100;
 }
 
 export async function getWeeklyMetricsChanges() {
@@ -80,28 +73,42 @@ export async function getWeeklyMetricsChanges() {
 		return null; // Insufficient data
 	}
 
-	// Extract all values for each metric
-	const uptimeValues = metricsData.map((m) => m.uptime);
-	const tvlValues = metricsData.map((m) => m.tvl);
-	const stakedAdaValues = metricsData.map((m) => m.stakedAda);
-	const treasuryAdaValues = metricsData.map((m) => m.treasuryAda);
-	const activeStakePoolsValues = metricsData.map((m) => m.activeStakePools);
-	const transactionsValues = metricsData.map((m) => m.transactions24h);
-	const activeWalletsValues = metricsData.map((m) => m.activeWallets24h);
-	const adaPriceValues = metricsData.map((m) => m.adaPrice);
+	// Get first (oldest) and last (newest) entries
+	// Data is already ordered by createdAt ascending from the database query
+	const firstEntry = metricsData[0];
+	const lastEntry = metricsData[metricsData.length - 1];
 
-	// Calculate min/max changes for each metric
+	// Calculate weekly changes from first to last entry
 	const changes = {
-		uptime: calculateMinMaxPercentageChange(uptimeValues),
-		tvl: calculateMinMaxPercentageChange(tvlValues),
-		stakedAda: calculateMinMaxPercentageChange(stakedAdaValues),
-		treasuryAda: calculateMinMaxPercentageChange(treasuryAdaValues),
-		activeStakePools: calculateMinMaxPercentageChange(
-			activeStakePoolsValues
+		uptime: calculateWeeklyPercentageChange(
+			firstEntry.uptime,
+			lastEntry.uptime
 		),
-		transactions: calculateMinMaxPercentageChange(transactionsValues),
-		activeWallets: calculateMinMaxPercentageChange(activeWalletsValues),
-		adaPrice: calculateMinMaxPercentageChange(adaPriceValues),
+		tvl: calculateWeeklyPercentageChange(firstEntry.tvl, lastEntry.tvl),
+		stakedAda: calculateWeeklyPercentageChange(
+			firstEntry.stakedAda,
+			lastEntry.stakedAda
+		),
+		treasuryAda: calculateWeeklyPercentageChange(
+			firstEntry.treasuryAda,
+			lastEntry.treasuryAda
+		),
+		activeStakePools: calculateWeeklyPercentageChange(
+			firstEntry.activeStakePools,
+			lastEntry.activeStakePools
+		),
+		transactions: calculateWeeklyPercentageChange(
+			firstEntry.transactions24h,
+			lastEntry.transactions24h
+		),
+		activeWallets: calculateWeeklyPercentageChange(
+			firstEntry.activeWallets24h,
+			lastEntry.activeWallets24h
+		),
+		adaPrice: calculateWeeklyPercentageChange(
+			firstEntry.adaPrice,
+			lastEntry.adaPrice
+		),
 	};
 
 	return changes;
