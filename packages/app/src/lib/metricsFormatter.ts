@@ -65,7 +65,9 @@ export function createTweetContent(metrics) {
 🖥️ Active Stake Pools: ${formatNumber(activeStakePools)}
 📊 Transactions: ${formatNumber(transactions24h)}
 👛 Active Wallets: ${formatNumber(activeWallets24h)}
-⏳ Epoch: ${epoch}`;
+⏳ Epoch: ${epoch}
+
+Collaboration with @GranADASwiss`;
 }
 
 export function calculatePercentageChange(current, previous) {
